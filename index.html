@@ -1,63 +1,410 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Forge — Generate Anything</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <!-- Background canvas -->
+    <canvas id="bgCanvas"></canvas>
 
-<head>
-    <!-- --------------------- Created By InCoder --------------------- -->
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator - InCoderWeb</title>
-    <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
+    <!-- Floating orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
-<body>
-    <div class="QRMainContainer">
-        <div class="title">QR Code Generator</div>
-        <div class="typesOfQR">
-            <button class="QRTypeBtn textBtn active" data-type="text"><i class="fa-solid fa-file-lines"></i> Free
-                Text</button>
-            <button class="QRTypeBtn urlBtn" data-type="url"><i class="fa-solid fa-link"></i> URL</button>
-            <button class="QRTypeBtn emailBtn" data-type="email"><i class="fa-solid fa-at"></i> E-Mail</button>
-            <button class="QRTypeBtn phoneBtn" data-type="phone"><i class="fa-solid fa-phone"></i> Phone</button>
-            <button class="QRTypeBtn smsBtn" data-type="sms"><i class="fa-solid fa-comment-dots"></i> SMS</button>
+    <main class="app">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="logo">
+          <span class="logo-icon"><i class="fa-solid fa-qrcode"></i></span>
+          <span class="logo-text">QR<span class="accent">Forge</span></span>
         </div>
-        <div class="inputFields">
-            <div class="freeTextInput inputBox active">
-                <textarea placeholder="Enter text to share" class="textareaTag"></textarea>
-            </div>
-            <div class="urlInput inputBox">
-                <input placeholder="Enter URL" type="url" class="inputTag" />
-                <p>Enter Link to open when scanned, e.g. https://example.com/</p>
-            </div>
-            <div class="emailInput inputBox">
-                <p>It opens a new email compose draft when scanned. <b>Note: Fill All Fields in order to generate correct QR Code.</b></p>
-                <input placeholder="Enter E-mail ID" type="email" class="inputTag" />
-                <input placeholder="Enter E-mail Subject" type="text" class="inputTag" />
-                <textarea placeholder="Enter Message" class="textareaTag"></textarea>
-                <p style="float: right;" id="characterCount">20/1000</p>
-            </div>
-            <div class="phoneInput inputBox">
-                <b>Note: In phone number field, first enter country Code and then enter your number.</b>
-                <input style="margin-top: .5rem;" placeholder="Enter Phone Number" type="text" class="inputTag" />
-            </div>
-            <div class="smsInput inputBox">
-                <b>Note: In phone number field, first enter country Code and then enter your number.</b>
-                <input style="margin-top: .5rem;" placeholder="Enter Phone Number" type="text" class="inputTag" />
-                <textarea placeholder="Enter Message" class="textareaTag"></textarea>
-            </div>
-        </div>
-        <div class="QROutputWrapper">
-            <p style="text-align: right!important; width: 100%;" id="demoText">Demo QR Code</p>
-            <img alt="Demo QR Code" src="images/qr-code.png" id="demoQR" />
-            <div id="qrCode"></div>
-            <p id="demoInfo">Fill the fields to generate QR code.</p>
-        </div>
-        <button id="downloadBtn"><i class="fa-solid fa-download"></i> Download QR Code</button>
-    </div>
+        <p class="tagline">Craft beautiful QR codes in seconds</p>
+      </header>
 
+      <!-- Tab Pills -->
+      <div class="tab-scroller">
+        <nav class="tabs" role="tablist">
+          <button class="tab active" data-type="text" role="tab">
+            <i class="fa-solid fa-font"></i><span>Text</span>
+          </button>
+          <button class="tab" data-type="url" role="tab">
+            <i class="fa-solid fa-link"></i><span>URL</span>
+          </button>
+          <button class="tab" data-type="email" role="tab">
+            <i class="fa-solid fa-envelope"></i><span>Email</span>
+          </button>
+          <button class="tab" data-type="phone" role="tab">
+            <i class="fa-solid fa-phone"></i><span>Phone</span>
+          </button>
+          <button class="tab" data-type="sms" role="tab">
+            <i class="fa-solid fa-comment-sms"></i><span>SMS</span>
+          </button>
+          <button class="tab" data-type="wifi" role="tab">
+            <i class="fa-solid fa-wifi"></i><span>WiFi</span>
+          </button>
+          <button class="tab" data-type="vcard" role="tab">
+            <i class="fa-solid fa-address-card"></i><span>vCard</span>
+          </button>
+          <button class="tab" data-type="upi" role="tab">
+            <i class="fa-solid fa-indian-rupee-sign"></i><span>UPI</span>
+          </button>
+          <div class="tab-ink"></div>
+        </nav>
+      </div>
+
+      <!-- Main Card -->
+      <div class="card">
+        <!-- Left: Inputs -->
+        <section class="card-left">
+          <!-- TEXT -->
+          <div class="input-panel active" data-panel="text">
+            <label class="field-label">Your Text</label>
+            <textarea
+              class="field-textarea"
+              placeholder="Type anything here…"
+              id="textInput"
+              maxlength="500"
+            ></textarea>
+            <div class="char-bar"><span id="textCount">0</span>/500</div>
+          </div>
+
+          <!-- URL -->
+          <div class="input-panel" data-panel="url">
+            <label class="field-label">Website URL</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-globe"></i>
+              <input
+                class="field-input"
+                type="url"
+                placeholder="https://example.com"
+                id="urlInput"
+              />
+            </div>
+            <p class="field-hint">Include https:// for best results</p>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="input-panel" data-panel="email">
+            <label class="field-label">Email Address</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-at"></i>
+              <input
+                class="field-input"
+                type="email"
+                placeholder="name@example.com"
+                id="emailTo"
+              />
+            </div>
+            <label class="field-label mt">Subject</label>
+            <input
+              class="field-input"
+              type="text"
+              placeholder="Email subject"
+              id="emailSubject"
+            />
+            <label class="field-label mt">Message</label>
+            <textarea
+              class="field-textarea"
+              placeholder="Your message…"
+              id="emailBody"
+              maxlength="300"
+            ></textarea>
+          </div>
+
+          <!-- PHONE -->
+          <div class="input-panel" data-panel="phone">
+            <label class="field-label">Phone Number</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-phone"></i>
+              <input
+                class="field-input"
+                type="tel"
+                placeholder="+91 98765 43210"
+                id="phoneInput"
+              />
+            </div>
+            <p class="field-hint">Include country code e.g. +91</p>
+          </div>
+
+          <!-- SMS -->
+          <div class="input-panel" data-panel="sms">
+            <label class="field-label">Phone Number</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-phone"></i>
+              <input
+                class="field-input"
+                type="tel"
+                placeholder="+91 98765 43210"
+                id="smsPhone"
+              />
+            </div>
+            <label class="field-label mt">Message</label>
+            <textarea
+              class="field-textarea"
+              placeholder="Type SMS message…"
+              id="smsBody"
+              maxlength="160"
+            ></textarea>
+            <div class="char-bar"><span id="smsCount">0</span>/160</div>
+          </div>
+
+          <!-- WIFI -->
+          <div class="input-panel" data-panel="wifi">
+            <label class="field-label">Network Name (SSID)</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-wifi"></i>
+              <input
+                class="field-input"
+                type="text"
+                placeholder="MyHomeNetwork"
+                id="wifiSSID"
+              />
+            </div>
+            <label class="field-label mt">Password</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input
+                class="field-input"
+                type="password"
+                placeholder="Network password"
+                id="wifiPass"
+              />
+              <button class="eye-btn" id="wifiEye">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <label class="field-label mt">Security</label>
+            <div class="seg-control" id="wifiSecurity">
+              <button class="seg active" data-val="WPA">WPA/WPA2</button>
+              <button class="seg" data-val="WEP">WEP</button>
+              <button class="seg" data-val="nopass">None</button>
+            </div>
+          </div>
+
+          <!-- VCARD -->
+          <div class="input-panel" data-panel="vcard">
+            <div class="grid-2">
+              <div>
+                <label class="field-label">First Name</label>
+                <input
+                  class="field-input"
+                  type="text"
+                  placeholder="Arjun"
+                  id="vcFirst"
+                />
+              </div>
+              <div>
+                <label class="field-label">Last Name</label>
+                <input
+                  class="field-input"
+                  type="text"
+                  placeholder="Sharma"
+                  id="vcLast"
+                />
+              </div>
+            </div>
+            <label class="field-label mt">Phone</label>
+            <input
+              class="field-input"
+              type="tel"
+              placeholder="+91 98765 43210"
+              id="vcPhone"
+            />
+            <label class="field-label mt">Email</label>
+            <input
+              class="field-input"
+              type="email"
+              placeholder="arjun@example.com"
+              id="vcEmail"
+            />
+            <label class="field-label mt">Organization</label>
+            <input
+              class="field-input"
+              type="text"
+              placeholder="Company name"
+              id="vcOrg"
+            />
+            <label class="field-label mt">Website</label>
+            <input
+              class="field-input"
+              type="url"
+              placeholder="https://portfolio.com"
+              id="vcUrl"
+            />
+          </div>
+
+          <!-- UPI -->
+          <div class="input-panel" data-panel="upi">
+            <label class="field-label">UPI ID</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+              <input
+                class="field-input"
+                type="text"
+                placeholder="name@upi"
+                id="upiId"
+              />
+            </div>
+            <label class="field-label mt">Payee Name</label>
+            <input
+              class="field-input"
+              type="text"
+              placeholder="Arjun Sharma"
+              id="upiName"
+            />
+            <label class="field-label mt">Amount (optional)</label>
+            <input
+              class="field-input"
+              type="number"
+              placeholder="0.00"
+              id="upiAmount"
+              min="0"
+            />
+            <label class="field-label mt">Note (optional)</label>
+            <input
+              class="field-input"
+              type="text"
+              placeholder="Payment for…"
+              id="upiNote"
+            />
+          </div>
+
+          <!-- Customize Section -->
+          <div class="customize-section">
+            <button class="customize-toggle" id="customToggle">
+              <i class="fa-solid fa-sliders"></i> Customize QR
+              <i
+                class="fa-solid fa-chevron-down toggle-arrow"
+                id="toggleArrow"
+              ></i>
+            </button>
+            <div class="customize-body" id="customBody">
+              <div class="custom-row">
+                <div class="custom-col">
+                  <label class="field-label">Foreground</label>
+                  <div class="color-pick-wrap">
+                    <input type="color" id="fgColor" value="#000000" />
+                    <span id="fgHex">#000000</span>
+                  </div>
+                </div>
+                <div class="custom-col">
+                  <label class="field-label">Background</label>
+                  <div class="color-pick-wrap">
+                    <input type="color" id="bgColor" value="#ffffff" />
+                    <span id="bgHex">#ffffff</span>
+                  </div>
+                </div>
+              </div>
+              <div class="custom-row">
+                <div class="custom-col full">
+                  <label class="field-label"
+                    >Size — <span id="sizeVal">256</span>px</label
+                  >
+                  <input
+                    type="range"
+                    id="qrSize"
+                    min="128"
+                    max="512"
+                    value="256"
+                    step="32"
+                    class="range-slider"
+                  />
+                </div>
+              </div>
+              <div class="custom-row">
+                <div class="custom-col full">
+                  <label class="field-label">Error Correction</label>
+                  <div class="seg-control" id="ecLevel">
+                    <button class="seg active" data-val="L" title="Low — 7%">
+                      L
+                    </button>
+                    <button class="seg" data-val="M" title="Medium — 15%">
+                      M
+                    </button>
+                    <button class="seg" data-val="Q" title="Quartile — 25%">
+                      Q
+                    </button>
+                    <button class="seg" data-val="H" title="High — 30%">
+                      H
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Generate Button -->
+          <button class="generate-btn" id="generateBtn">
+            <span class="btn-text"
+              ><i class="fa-solid fa-bolt"></i> Generate QR</span
+            >
+            <span class="btn-loader"
+              ><i class="fa-solid fa-circle-notch fa-spin"></i
+            ></span>
+          </button>
+        </section>
+
+        <!-- Right: Output -->
+        <section class="card-right">
+          <div class="qr-output" id="qrOutput">
+            <!-- Placeholder state -->
+            <div class="qr-placeholder" id="qrPlaceholder">
+              <div class="ph-icon"><i class="fa-regular fa-qrcode"></i></div>
+              <p>Fill the fields &amp; hit Generate</p>
+            </div>
+            <!-- QR renders here -->
+            <div class="qr-canvas-wrap" id="qrCanvasWrap">
+              <div id="qrCodeEl"></div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="qr-actions" id="qrActions">
+            <button class="action-btn primary" id="downloadPNG">
+              <i class="fa-solid fa-download"></i> PNG
+            </button>
+            <button class="action-btn" id="downloadSVG">
+              <i class="fa-solid fa-code"></i> SVG
+            </button>
+            <button class="action-btn" id="copyBtn">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
+            <button class="action-btn" id="shareBtn">
+              <i class="fa-solid fa-share-nodes"></i> Share
+            </button>
+          </div>
+
+          <!-- History -->
+          <div class="history-section" id="historySection">
+            <div class="history-header">
+              <span><i class="fa-solid fa-clock-rotate-left"></i> Recent</span>
+              <button id="clearHistory">Clear</button>
+            </div>
+            <div class="history-list" id="historyList"></div>
+          </div>
+        </section>
+      </div>
+      <!-- /.card -->
+
+      <!-- Toast -->
+      <div class="toast" id="toast"></div>
+    </main>
+
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="script.js"></script>
-</body>
-
+  </body>
 </html>
